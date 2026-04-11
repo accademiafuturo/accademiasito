@@ -172,8 +172,7 @@ img {
   align-items: center;
 }
 
-.nav-links a,
-.nav-admin {
+.nav-links a {
   padding: 10px 14px;
   border-radius: 999px;
   color: rgba(255, 255, 255, 0.9);
@@ -185,8 +184,7 @@ img {
   cursor: pointer;
 }
 
-.nav-links a:hover,
-.nav-admin:hover {
+.nav-links a:hover {
   background: rgba(255, 255, 255, 0.12);
   transform: translateY(-1px);
 }
@@ -585,12 +583,6 @@ main {
   font-size: 14px;
 }
 
-.btn-danger {
-  background: var(--danger-soft);
-  color: var(--danger);
-  border: 1px solid rgba(180, 35, 24, 0.18);
-}
-
 .btn-disabled,
 .btn[disabled] {
   opacity: 0.6;
@@ -765,16 +757,6 @@ main {
 .pill-success {
   background: var(--success-soft);
   color: var(--success);
-}
-
-.pill-warning {
-  background: var(--warning-soft);
-  color: var(--warning);
-}
-
-.pill-danger {
-  background: var(--danger-soft);
-  color: var(--danger);
 }
 
 .micro-note {
@@ -1080,8 +1062,7 @@ main {
     font-size: 28px;
   }
 
-  .nav-links a,
-  .nav-admin {
+  .nav-links a {
     width: 100%;
     text-align: center;
   }
@@ -1092,7 +1073,4 @@ main {
     flex-direction: column;
     align-items: flex-start;
   }
-}
-.admin-section {
-  display: none;
 }
