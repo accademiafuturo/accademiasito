@@ -1,13 +1,18 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const STORAGE_KEY = "accademia-futuro-state-v1";
+  const STORAGE_KEY = "accademia-futuro-state-v2";
   const ADMIN_SESSION_KEY = "accademia-futuro-admin-session";
   const ADMIN_CODE = "Luca10082004!";
+  const ADMIN_HASH = "#admin-access";
+
+  function deepClone(value) {
+    return JSON.parse(JSON.stringify(value));
+  }
 
   const defaultState = {
     settings: {
-      contactEmail: "Accademiafuturo@gmail.com",
-      notificationEmail: "Accademiafuturo@gmail.com",
-      contactNote: "Tempi di risposta: 24 Ore. In questa fase il progetto è operativo in modo leggero e progressivo."
+      contactEmail: "ACCADEMIAFUTURO@GMAIL.COM",
+      notificationEmail: "ACCADEMIAFUTURO@GMAIL.COM",
+      contactNote: "Tempi di risposta: entro 24 ore."
     },
     faq: [
       {
@@ -16,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
       },
       {
         question: "Come riceverò il prodotto?",
-        answer: "Se il prodotto è disponibile e collegato a un checkout esterno, dopo il pagamento riceverai l’accesso o il download secondo il flusso impostato."
+        answer: "Se il prodotto è disponibile e collegato a un checkout esterno, dopo il pagamento riceverai il prodotto secondo il flusso impostato."
       },
       {
         question: "Serve un account per leggere gli e-book?",
@@ -93,6 +98,28 @@ document.addEventListener("DOMContentLoaded", () => {
     ]
   };
 
+  function loadState() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return deepClone(defaultState);
+
+      const parsed = JSON.parse(saved);
+
+      return {
+        settings: {
+          ...deepClone(defaultState.settings),
+          ...(parsed.settings || {})
+        },
+        faq: Array.isArray(parsed.faq) ? parsed.faq : deepClone(defaultState.faq),
+        products: Array.isArray(parsed.products) && parsed.products.length
+          ? parsed.products
+          : deepClone(defaultState.products)
+      };
+    } catch (error) {
+      return deepClone(defaultState);
+    }
+  }
+
   const state = loadState();
 
   const dom = {
@@ -111,8 +138,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     navToggle: document.querySelector("[data-toggle-nav]"),
     navLinks: document.getElementById("nav-links"),
-    openAdminButtons: document.querySelectorAll("[data-open-admin], [data-open-admin-link]"),
 
+    adminSection: document.getElementById("admin"),
     adminLoginForm: document.getElementById("admin-login-form"),
     adminPassword: document.getElementById("admin-password"),
     adminLoginBox: document.getElementById("admin-login-box"),
@@ -156,52 +183,29 @@ document.addEventListener("DOMContentLoaded", () => {
     resetDemoData: document.getElementById("reset-demo-data")
   };
 
- let uiState = {
-  selectedProductId: state.products[0]?.id || null,
-  search: "",
-  category: "all",
-  status: "all",
-  sort: "featured",
-  adminVisible: window.location.hash === "#admin-access"
-};
+  let uiState = {
+    selectedProductId: state.products[0]?.id || null,
+    search: "",
+    category: "all",
+    status: "all",
+    sort: "featured",
+    adminVisible: window.location.hash === ADMIN_HASH
+  };
 
   init();
 
- function init() {
-  bindEvents();
-  hydrateSettingsForm();
-  renderAll();
-  syncAdminSession();
-  updateAdminVisibility();
-  openProductFromHash();
-}
-  function updateAdminVisibility() {
-  const adminSection = document.getElementById("admin");
-  const isLogged = localStorage.getItem(ADMIN_SESSION_KEY) === "active";
-
-  adminSection.style.display = uiState.adminVisible || isLogged ? "block" : "none";
-}
+  function init() {
+    bindEvents();
+    hydrateSettingsForm();
+    renderAll();
+    syncAdminSession();
+    handleRoute();
+  }
 
   function bindEvents() {
     dom.searchInput.addEventListener("input", (event) => {
       uiState.search = event.target.value.trim().toLowerCase();
       renderCatalog();
-      document.addEventListener("keydown", (event) => {
-  if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "a") {
-    uiState.adminVisible = true;
-    updateAdminVisibility();
-    document.getElementById("admin").scrollIntoView({ behavior: "smooth", block: "start" });
-    toast("Accesso admin aperto.");
-  }
-});
-
-window.addEventListener("hashchange", () => {
-  if (window.location.hash === "#admin-access") {
-    uiState.adminVisible = true;
-    updateAdminVisibility();
-    document.getElementById("admin").scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-});
     });
 
     dom.categoryFilter.addEventListener("change", (event) => {
@@ -224,13 +228,6 @@ window.addEventListener("hashchange", () => {
       dom.navToggle.setAttribute("aria-expanded", String(isOpen));
     });
 
-    dom.openAdminButtons.forEach((button) => {
-      button.addEventListener("click", (event) => {
-        event.preventDefault();
-        document.getElementById("admin").scrollIntoView({ behavior: "smooth", block: "start" });
-      });
-    });
-
     dom.adminLoginForm.addEventListener("submit", (event) => {
       event.preventDefault();
       const code = dom.adminPassword.value.trim();
@@ -240,32 +237,32 @@ window.addEventListener("hashchange", () => {
         return;
       }
 
-if (code !== ADMIN_CODE) {
-  toast("Codice admin non corretto.");
-  return;
-}
+      if (code !== ADMIN_CODE) {
+        toast("Codice admin non corretto.");
+        return;
+      }
 
-localStorage.setItem(ADMIN_SESSION_KEY, "active");
-uiState.adminVisible = true;
-dom.adminPassword.value = "";
-syncAdminSession();
-toast("Vista admin sbloccata.");
+      localStorage.setItem(ADMIN_SESSION_KEY, "active");
+      uiState.adminVisible = true;
+      dom.adminPassword.value = "";
+      history.replaceState(null, "", "#admin");
+      syncAdminSession();
+      dom.adminSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      toast("Vista admin sbloccata.");
     });
 
     dom.logoutAdmin.addEventListener("click", () => {
-  localStorage.removeItem(ADMIN_SESSION_KEY);
-  uiState.adminVisible = false;
-  if (window.location.hash === "#admin-access") {
-    history.replaceState(null, "", "#home");
-  }
-  syncAdminSession();
-  toast("Sessione admin chiusa.");
-});
+      localStorage.removeItem(ADMIN_SESSION_KEY);
+      uiState.adminVisible = false;
+      history.replaceState(null, "", "#home");
+      syncAdminSession();
+      toast("Sessione admin chiusa.");
+    });
+
     dom.adminTabButtons.forEach((button) => {
       button.addEventListener("click", () => {
-        dom.adminTabButtons.forEach((item) => item.classList.remove("active"));
-        button.classList.add("active");
         const target = button.dataset.adminTab;
+        dom.adminTabButtons.forEach((item) => item.classList.toggle("active", item === button));
         dom.adminPanels.forEach((panel) => {
           panel.classList.toggle("active", panel.id === `admin-panel-${target}`);
         });
@@ -283,13 +280,15 @@ toast("Vista admin sbloccata.");
     });
 
     dom.deleteProduct.addEventListener("click", () => {
-      const id = dom.productId.value;
+      const id = dom.productId.value.trim();
+
       if (!id) {
         toast("Seleziona prima un prodotto da rimuovere.");
         return;
       }
 
       const index = state.products.findIndex((product) => product.id === id);
+
       if (index === -1) {
         toast("Prodotto non trovato.");
         return;
@@ -314,9 +313,11 @@ toast("Vista admin sbloccata.");
 
     dom.settingsForm.addEventListener("submit", (event) => {
       event.preventDefault();
-      state.settings.contactEmail = dom.contactEmail.value.trim() || "[MISSING_EMAIL]";
-      state.settings.notificationEmail = dom.notificationEmail.value.trim() || "[MISSING_NOTIFICATION_EMAIL]";
-      state.settings.contactNote = dom.contactNote.value.trim() || "[MISSING]";
+
+      state.settings.contactEmail = dom.contactEmail.value.trim() || "ACCADEMIAFUTURO@GMAIL.COM";
+      state.settings.notificationEmail = dom.notificationEmail.value.trim() || "ACCADEMIAFUTURO@GMAIL.COM";
+      state.settings.contactNote = dom.contactNote.value.trim() || "Tempi di risposta: entro 24 ore.";
+
       persist();
       renderContacts();
       renderAudit();
@@ -332,16 +333,18 @@ toast("Vista admin sbloccata.");
     dom.importBackup.addEventListener("click", () => {
       try {
         const parsed = JSON.parse(dom.backupInput.value);
+
         if (!parsed || typeof parsed !== "object") {
           throw new Error("Formato non valido");
         }
+
         if (!Array.isArray(parsed.products) || !parsed.settings) {
           throw new Error("JSON incompleto");
         }
 
         state.settings = parsed.settings;
         state.products = parsed.products;
-        state.faq = Array.isArray(parsed.faq) ? parsed.faq : defaultState.faq;
+        state.faq = Array.isArray(parsed.faq) ? parsed.faq : deepClone(defaultState.faq);
 
         uiState.selectedProductId = state.products[0]?.id || null;
 
@@ -356,11 +359,12 @@ toast("Vista admin sbloccata.");
     });
 
     dom.resetDemoData.addEventListener("click", () => {
-      const fresh = structuredClone(defaultState);
+      const fresh = deepClone(defaultState);
       state.settings = fresh.settings;
       state.products = fresh.products;
       state.faq = fresh.faq;
       uiState.selectedProductId = state.products[0]?.id || null;
+
       persist();
       hydrateSettingsForm();
       clearProductForm();
@@ -368,28 +372,55 @@ toast("Vista admin sbloccata.");
       toast("Dati demo ripristinati.");
     });
 
-    window.addEventListener("hashchange", openProductFromHash);
+    document.addEventListener("keydown", (event) => {
+      if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "a") {
+        uiState.adminVisible = true;
+        updateAdminVisibility();
+        history.replaceState(null, "", ADMIN_HASH);
+        dom.adminSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        toast("Accesso admin aperto.");
+      }
+    });
+
+    window.addEventListener("hashchange", handleRoute);
   }
 
-  function loadState() {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (!saved) return structuredClone(defaultState);
+  function handleRoute() {
+    const hash = window.location.hash || "";
+    const isLogged = localStorage.getItem(ADMIN_SESSION_KEY) === "active";
 
-      const parsed = JSON.parse(saved);
-      return {
-        settings: {
-          ...defaultState.settings,
-          ...(parsed.settings || {})
-        },
-        faq: Array.isArray(parsed.faq) ? parsed.faq : structuredClone(defaultState.faq),
-        products: Array.isArray(parsed.products) && parsed.products.length
-          ? parsed.products
-          : structuredClone(defaultState.products)
-      };
-    } catch (error) {
-      return structuredClone(defaultState);
+    if (hash === ADMIN_HASH) {
+      uiState.adminVisible = true;
+      updateAdminVisibility();
+      dom.adminSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
     }
+
+    if (hash === "#admin" && isLogged) {
+      uiState.adminVisible = true;
+      updateAdminVisibility();
+      return;
+    }
+
+    openProductFromHash();
+
+    if (!isLogged) {
+      uiState.adminVisible = false;
+      updateAdminVisibility();
+    }
+  }
+
+  function updateAdminVisibility() {
+    const isLogged = localStorage.getItem(ADMIN_SESSION_KEY) === "active";
+    const shouldShow = uiState.adminVisible || isLogged;
+    dom.adminSection.classList.toggle("hidden", !shouldShow);
+  }
+
+  function syncAdminSession() {
+    const active = localStorage.getItem(ADMIN_SESSION_KEY) === "active";
+    dom.adminLoginBox.classList.toggle("hidden", active);
+    dom.adminSessionBox.classList.toggle("hidden", !active);
+    updateAdminVisibility();
   }
 
   function persist() {
@@ -460,9 +491,13 @@ toast("Vista admin sbloccata.");
 
     const priceLabel = formatPrice(product.price);
     const statusLabel = getStatusLabel(product.status);
-    const purchaseButton = product.status === "available" && product.checkoutUrl && !product.checkoutUrl.includes("[MISSING")
-      ? `<a class="btn btn-primary" href="${escapeAttribute(product.checkoutUrl)}" target="_blank" rel="noopener noreferrer">Acquista ora</a>`
-      : `<button class="btn btn-primary btn-disabled" type="button" disabled>Checkout da collegare</button>`;
+
+    const purchaseButton =
+      product.status === "available" &&
+      product.checkoutUrl &&
+      !product.checkoutUrl.includes("[MISSING")
+        ? `<a class="btn btn-primary" href="${escapeAttribute(product.checkoutUrl)}" target="_blank" rel="noopener noreferrer">Acquista ora</a>`
+        : `<button class="btn btn-primary btn-disabled" type="button" disabled>Checkout da collegare</button>`;
 
     dom.productLayout.innerHTML = `
       <div class="product-box">
@@ -531,18 +566,18 @@ toast("Vista admin sbloccata.");
   function renderContacts() {
     dom.contactsCard.innerHTML = `
       <h2>Scrivici</h2>
-      <p>Email di progetto: <strong>${escapeHtml(state.settings.contactEmail || "[MISSING_EMAIL]")}</strong></p>
+      <p>Email di progetto: <strong>${escapeHtml(state.settings.contactEmail || "ACCADEMIAFUTURO@GMAIL.COM")}</strong></p>
 
       <h2>Email notifiche</h2>
-      <p><strong>${escapeHtml(state.settings.notificationEmail || "[MISSING_NOTIFICATION_EMAIL]")}</strong></p>
+      <p><strong>${escapeHtml(state.settings.notificationEmail || "ACCADEMIAFUTURO@GMAIL.COM")}</strong></p>
 
       <h2>Tempi di risposta / nota</h2>
-      <p>${escapeHtml(state.settings.contactNote || "[MISSING]")}</p>
+      <p>${escapeHtml(state.settings.contactNote || "Tempi di risposta: entro 24 ore.")}</p>
 
       <h2>Nota</h2>
       <p>
-        In una fase successiva puoi aggiungere un modulo contatti semplice, una vera casella supporto
-        e un sistema di gestione ordini più strutturato.
+        In una fase successiva puoi aggiungere un modulo contatti semplice,
+        una casella supporto dedicata e un sistema ordini più strutturato.
       </p>
     `;
   }
@@ -572,6 +607,7 @@ toast("Vista admin sbloccata.");
         const product = state.products.find((item) => item.id === button.dataset.editProduct);
         if (!product) return;
         fillProductForm(product);
+        setAdminTab("products");
         document.getElementById("admin-panel-products").scrollIntoView({ behavior: "smooth", block: "start" });
       });
     });
@@ -707,26 +743,31 @@ toast("Vista admin sbloccata.");
 
   function populateCategoryFilter() {
     const currentValue = uiState.category;
-    const categories = [...new Set(state.products.map((product) => product.category).filter(Boolean))].sort((a, b) => a.localeCompare(b, "it"));
+    const categories = [...new Set(state.products.map((product) => product.category).filter(Boolean))]
+      .sort((a, b) => a.localeCompare(b, "it"));
 
     dom.categoryFilter.innerHTML = `
       <option value="all">Tutte le categorie</option>
       ${categories.map((category) => `<option value="${escapeAttribute(category)}">${escapeHtml(category)}</option>`).join("")}
     `;
 
-    dom.categoryFilter.value = categories.includes(currentValue) || currentValue === "all" ? currentValue : "all";
+    dom.categoryFilter.value =
+      categories.includes(currentValue) || currentValue === "all" ? currentValue : "all";
+
     uiState.category = dom.categoryFilter.value;
   }
 
   function getFilteredProducts() {
     const products = [...state.products].filter((product) => {
-      const matchSearch = !uiState.search || [
-        product.title,
-        product.shortDescription,
-        product.description,
-        product.category,
-        product.badge
-      ].some((field) => String(field || "").toLowerCase().includes(uiState.search));
+      const matchSearch =
+        !uiState.search ||
+        [
+          product.title,
+          product.shortDescription,
+          product.description,
+          product.category,
+          product.badge
+        ].some((field) => String(field || "").toLowerCase().includes(uiState.search));
 
       const matchCategory = uiState.category === "all" || product.category === uiState.category;
       const matchStatus = uiState.status === "all" || product.status === uiState.status;
@@ -786,11 +827,13 @@ toast("Vista admin sbloccata.");
       button.addEventListener("click", () => {
         uiState.selectedProductId = button.dataset.productId;
         const product = state.products.find((item) => item.id === uiState.selectedProductId);
+
         if (product?.slug) {
           history.replaceState(null, "", `#prodotto-${product.slug}`);
         } else {
           history.replaceState(null, "", "#prodotto");
         }
+
         renderProductDetail();
         document.getElementById("prodotto").scrollIntoView({ behavior: "smooth", block: "start" });
       });
@@ -800,9 +843,12 @@ toast("Vista admin sbloccata.");
   function openProductFromHash() {
     const hash = window.location.hash || "";
     if (!hash.startsWith("#prodotto-")) return;
+
     const slug = hash.replace("#prodotto-", "");
     const product = state.products.find((item) => item.slug === slug);
+
     if (!product) return;
+
     uiState.selectedProductId = product.id;
     renderProductDetail();
   }
@@ -829,6 +875,7 @@ toast("Vista admin sbloccata.");
     dom.productForm.reset();
     dom.productId.value = "";
     dom.productStatus.value = "available";
+    dom.productFeatured.checked = false;
   }
 
   function upsertProductFromForm() {
@@ -853,13 +900,15 @@ toast("Vista admin sbloccata.");
 
     const currentProduct = state.products.find((product) => product.id === id);
     const isSlugTaken = state.products.some((product) => product.slug === slug && product.id !== id);
+
     if (isSlugTaken) {
       toast("Questo slug è già in uso da un altro prodotto.");
       return;
     }
 
     const rawPrice = dom.productPrice.value.trim();
-    const price = rawPrice === "" ? null : Number(rawPrice);
+    const parsedPrice = rawPrice === "" ? null : Number(rawPrice);
+    const price = Number.isFinite(parsedPrice) ? parsedPrice : null;
 
     const product = {
       id,
@@ -868,7 +917,7 @@ toast("Vista admin sbloccata.");
       shortDescription: dom.productShortDescription.value.trim(),
       description: dom.productDescription.value.trim(),
       features,
-      price: Number.isFinite(price) ? price : null,
+      price,
       format: dom.productFormat.value.trim() || "PDF",
       audience: dom.productAudience.value.trim() || "[MISSING]",
       category: dom.productCategory.value.trim() || "[MISSING]",
@@ -891,14 +940,18 @@ toast("Vista admin sbloccata.");
     persist();
     renderAll();
     fillProductForm(product);
+    setAdminTab("products");
   }
 
-  function syncAdminSession() {
-  const active = localStorage.getItem(ADMIN_SESSION_KEY) === "active";
-  dom.adminLoginBox.classList.toggle("hidden", active);
-  dom.adminSessionBox.classList.toggle("hidden", !active);
-  updateAdminVisibility();
-}
+  function setAdminTab(tabName) {
+    dom.adminTabButtons.forEach((button) => {
+      button.classList.toggle("active", button.dataset.adminTab === tabName);
+    });
+
+    dom.adminPanels.forEach((panel) => {
+      panel.classList.toggle("active", panel.id === `admin-panel-${tabName}`);
+    });
+  }
 
   function refreshBackup() {
     dom.backupOutput.value = JSON.stringify(state, null, 2);
