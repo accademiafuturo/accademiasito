@@ -156,28 +156,52 @@ document.addEventListener("DOMContentLoaded", () => {
     resetDemoData: document.getElementById("reset-demo-data")
   };
 
-  let uiState = {
-    selectedProductId: state.products[0]?.id || null,
-    search: "",
-    category: "all",
-    status: "all",
-    sort: "featured"
-  };
+ let uiState = {
+  selectedProductId: state.products[0]?.id || null,
+  search: "",
+  category: "all",
+  status: "all",
+  sort: "featured",
+  adminVisible: window.location.hash === "#admin-access"
+};
 
   init();
 
-  function init() {
-    bindEvents();
-    hydrateSettingsForm();
-    renderAll();
-    syncAdminSession();
-    openProductFromHash();
-  }
+ function init() {
+  bindEvents();
+  hydrateSettingsForm();
+  renderAll();
+  syncAdminSession();
+  updateAdminVisibility();
+  openProductFromHash();
+}
+  function updateAdminVisibility() {
+  const adminSection = document.getElementById("admin");
+  const isLogged = localStorage.getItem(ADMIN_SESSION_KEY) === "active";
+
+  adminSection.style.display = uiState.adminVisible || isLogged ? "block" : "none";
+}
 
   function bindEvents() {
     dom.searchInput.addEventListener("input", (event) => {
       uiState.search = event.target.value.trim().toLowerCase();
       renderCatalog();
+      document.addEventListener("keydown", (event) => {
+  if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "a") {
+    uiState.adminVisible = true;
+    updateAdminVisibility();
+    document.getElementById("admin").scrollIntoView({ behavior: "smooth", block: "start" });
+    toast("Accesso admin aperto.");
+  }
+});
+
+window.addEventListener("hashchange", () => {
+  if (window.location.hash === "#admin-access") {
+    uiState.adminVisible = true;
+    updateAdminVisibility();
+    document.getElementById("admin").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+});
     });
 
     dom.categoryFilter.addEventListener("change", (event) => {
@@ -216,23 +240,27 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      if (code !== ADMIN_CODE) {
-        toast("Codice admin non corretto.");
-        return;
-      }
+if (code !== ADMIN_CODE) {
+  toast("Codice admin non corretto.");
+  return;
+}
 
-      localStorage.setItem(ADMIN_SESSION_KEY, "active");
-      dom.adminPassword.value = "";
-      syncAdminSession();
-      toast("Vista admin sbloccata.");
+localStorage.setItem(ADMIN_SESSION_KEY, "active");
+uiState.adminVisible = true;
+dom.adminPassword.value = "";
+syncAdminSession();
+toast("Vista admin sbloccata.");
     });
 
     dom.logoutAdmin.addEventListener("click", () => {
-      localStorage.removeItem(ADMIN_SESSION_KEY);
-      syncAdminSession();
-      toast("Sessione admin chiusa.");
-    });
-
+  localStorage.removeItem(ADMIN_SESSION_KEY);
+  uiState.adminVisible = false;
+  if (window.location.hash === "#admin-access") {
+    history.replaceState(null, "", "#home");
+  }
+  syncAdminSession();
+  toast("Sessione admin chiusa.");
+});
     dom.adminTabButtons.forEach((button) => {
       button.addEventListener("click", () => {
         dom.adminTabButtons.forEach((item) => item.classList.remove("active"));
@@ -866,10 +894,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function syncAdminSession() {
-    const active = localStorage.getItem(ADMIN_SESSION_KEY) === "active";
-    dom.adminLoginBox.classList.toggle("hidden", active);
-    dom.adminSessionBox.classList.toggle("hidden", !active);
-  }
+  const active = localStorage.getItem(ADMIN_SESSION_KEY) === "active";
+  dom.adminLoginBox.classList.toggle("hidden", active);
+  dom.adminSessionBox.classList.toggle("hidden", !active);
+  updateAdminVisibility();
+}
 
   function refreshBackup() {
     dom.backupOutput.value = JSON.stringify(state, null, 2);
