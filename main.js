@@ -1,13 +1,13 @@
 document.addEventListener("DOMContentLoaded", () => {
   const STORAGE_KEY = "accademia-futuro-state-v1";
   const ADMIN_SESSION_KEY = "accademia-futuro-admin-session";
-  const ADMIN_CODE = "[MISSING_ADMIN_CODE]";
+  const ADMIN_CODE = "Luca10082004!";
 
   const defaultState = {
     settings: {
-      contactEmail: "[MISSING_EMAIL]",
-      notificationEmail: "[MISSING_NOTIFICATION_EMAIL]",
-      contactNote: "Tempi di risposta: [MISSING]. In questa fase il progetto è operativo in modo leggero e progressivo."
+      contactEmail: "Accademiafuturo@gmail.com",
+      notificationEmail: "Accademiafuturo@gmail.com",
+      contactNote: "Tempi di risposta: 24 Ore. In questa fase il progetto è operativo in modo leggero e progressivo."
     },
     faq: [
       {
