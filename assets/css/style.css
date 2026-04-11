@@ -1093,3 +1093,6 @@ main {
     align-items: flex-start;
   }
 }
+.admin-section {
+  display: none;
+}
