@@ -6,7 +6,7 @@
   <title>Accademia Futuro | E-book pratici per crescere davvero</title>
   <meta
     name="description"
-    content="Accademia Futuro è una libreria digitale di e-book pratici per crescita personale, lavoro, AI, produttività e competenze utili nel mondo reale."
+    content="Accademia Futuro è una libreria digitale single-page di e-book pratici per crescita personale, lavoro, AI, produttività e competenze utili nel mondo reale."
   />
   <link rel="stylesheet" href="assets/css/style.css" />
 </head>
@@ -14,14 +14,14 @@
   <div class="topbar">
     <div class="container topbar-inner">
       <div>E-book pratici, guide operative e risorse digitali pensate per risultati reali.</div>
-      <div>Accesso immediato • Download digitale • Progetto in evoluzione</div>
+      <div>Accesso immediato • Download digitale • Single-page e-commerce</div>
     </div>
   </div>
 
   <header class="site-header" id="home">
     <div class="container">
       <nav class="nav">
-        <a class="brand" href="#home">
+        <a class="brand" href="#home" aria-label="Vai alla home di Accademia Futuro">
           <div class="brand-mark">◎</div>
           <div class="brand-meta">
             <small>Libreria digitale</small>
@@ -29,11 +29,22 @@
           </div>
         </a>
 
-        <div class="nav-links">
+        <button
+          class="nav-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="nav-links"
+          data-toggle-nav
+        >
+          Menu
+        </button>
+
+        <div class="nav-links" id="nav-links">
           <a href="#catalogo">Catalogo</a>
-          <a href="#chi-siamo">Chi siamo</a>
+          <a href="#prodotto">Scheda prodotto</a>
           <a href="#faq">FAQ</a>
           <a href="#contatti">Contatti</a>
+          <button class="nav-admin" type="button" data-open-admin>Vista admin</button>
           <a href="#catalogo" class="nav-cta">Scopri gli e-book</a>
         </div>
       </nav>
@@ -62,7 +73,7 @@
         <aside class="hero-side">
           <div class="hero-card">
             <h3>Categorie principali</h3>
-            <ul class="mini-list">
+            <ul class="mini-list" id="hero-categories">
               <li>AI e strumenti digitali</li>
               <li>Produttività e metodo</li>
               <li>Crescita professionale</li>
@@ -79,7 +90,7 @@
           </div>
 
           <div class="warn-box">
-            Nota: i prodotti mostrati in questa fase sono dimostrativi e servono a costruire la base del sito.
+            Nota: la gestione admin in questa versione è frontend-first. Le modifiche restano salvate solo nel browser usato, finché non colleghi una persistenza esterna.
           </div>
         </aside>
       </div>
@@ -89,7 +100,7 @@
   <main>
     <section class="section">
       <div class="container">
-        <div class="stats-row">
+        <div class="stats-row" id="stats-row">
           <div class="stat-card">
             <strong>100%</strong>
             <span>Digitale e semplice da consultare</span>
@@ -120,61 +131,7 @@
           <a class="btn btn-primary" href="#catalogo">Vedi tutto il catalogo</a>
         </div>
 
-        <div class="grid-3">
-          <article class="course-card">
-            <div class="badge">In evidenza</div>
-            <h3>Guida pratica all’AI per lavorare meglio</h3>
-            <p>Un e-book introduttivo per capire come usare strumenti AI in modo concreto, semplice e utile nella vita professionale.</p>
-            <div class="meta">
-              <span>PDF</span>
-              <span>Principianti</span>
-              <span>Produttività</span>
-            </div>
-            <div class="price-row">
-              <div class="price">
-                <strong>€ [MISSING]</strong>
-                <small>prezzo da definire</small>
-              </div>
-              <a class="btn btn-primary" href="#prodotto-ai">Vedi scheda</a>
-            </div>
-          </article>
-
-          <article class="course-card">
-            <div class="badge">Nuovo</div>
-            <h3>Metodo personale per lavorare con più ordine</h3>
-            <p>Una guida digitale per migliorare organizzazione, concentrazione e gestione del tempo in modo sostenibile.</p>
-            <div class="meta">
-              <span>PDF</span>
-              <span>Pratico</span>
-              <span>Metodo</span>
-            </div>
-            <div class="price-row">
-              <div class="price">
-                <strong>€ [MISSING]</strong>
-                <small>prezzo da definire</small>
-              </div>
-              <a class="btn btn-primary" href="#catalogo">Prossimamente</a>
-            </div>
-          </article>
-
-          <article class="course-card">
-            <div class="badge">Essenziale</div>
-            <h3>Comunicare meglio online in modo semplice</h3>
-            <p>Un e-book pensato per migliorare chiarezza, tono, struttura e qualità dei messaggi nel lavoro digitale.</p>
-            <div class="meta">
-              <span>PDF</span>
-              <span>Lavoro</span>
-              <span>Comunicazione</span>
-            </div>
-            <div class="price-row">
-              <div class="price">
-                <strong>€ [MISSING]</strong>
-                <small>prezzo da definire</small>
-              </div>
-              <a class="btn btn-primary" href="#catalogo">Prossimamente</a>
-            </div>
-          </article>
-        </div>
+        <div class="grid-3" id="featured-grid"></div>
       </div>
     </section>
 
@@ -198,7 +155,7 @@
               <li>Struttura semplice e leggibile</li>
               <li>Brand chiaro e memorabile</li>
               <li>Prodotti digitali facili da capire</li>
-              <li>Base pronta per collegare il checkout dopo</li>
+              <li>Base pronta per collegare il checkout esterno</li>
             </ul>
           </div>
         </div>
@@ -211,137 +168,65 @@
           <div>
             <h2>Catalogo e-book</h2>
             <p>
-              Qui troverai le risorse digitali di Accademia Futuro.
-              In questa fase il catalogo è essenziale, ma già impostato per crescere bene.
+              Qui trovi le risorse digitali di Accademia Futuro. Il catalogo è gestibile dallo stesso sito
+              tramite la vista admin e si aggiorna in tempo reale.
             </p>
           </div>
         </div>
 
-        <div class="grid-3">
-          <article class="course-card">
-            <div class="badge">Disponibile</div>
-            <h3>Guida pratica all’AI per lavorare meglio</h3>
-            <p>Un e-book introduttivo pensato per chi vuole usare l’AI in modo più utile e meno dispersivo.</p>
-            <div class="meta">
-              <span>PDF</span>
-              <span>Principianti</span>
-              <span>Operativo</span>
-            </div>
-            <div class="price-row">
-              <div class="price">
-                <strong>€ [MISSING]</strong>
-                <small>prezzo da definire</small>
-              </div>
-              <a class="btn btn-primary" href="#prodotto-ai">Apri scheda</a>
-            </div>
-          </article>
+        <div class="catalog-toolbar card">
+          <div class="catalog-toolbar-grid">
+            <label class="field">
+              <span>Cerca</span>
+              <input id="search-input" type="search" placeholder="Cerca per titolo, descrizione o categoria" />
+            </label>
 
-          <article class="course-card">
-            <div class="badge">In preparazione</div>
-            <h3>Metodo personale per lavorare con più ordine</h3>
-            <p>Una guida pratica su organizzazione, concentrazione e gestione intelligente delle attività.</p>
-            <div class="meta">
-              <span>PDF</span>
-              <span>Metodo</span>
-              <span>Produttività</span>
-            </div>
-            <div class="price-row">
-              <div class="price">
-                <strong>€ [MISSING]</strong>
-                <small>prezzo da definire</small>
-              </div>
-              <a class="btn btn-primary" href="#catalogo">Presto online</a>
-            </div>
-          </article>
+            <label class="field">
+              <span>Categoria</span>
+              <select id="category-filter">
+                <option value="all">Tutte le categorie</option>
+              </select>
+            </label>
 
-          <article class="course-card">
-            <div class="badge">In preparazione</div>
-            <h3>Comunicare meglio online in modo semplice</h3>
-            <p>Un e-book dedicato a chiarezza, tono e struttura dei messaggi digitali.</p>
-            <div class="meta">
-              <span>PDF</span>
-              <span>Comunicazione</span>
-              <span>Lavoro</span>
-            </div>
-            <div class="price-row">
-              <div class="price">
-                <strong>€ [MISSING]</strong>
-                <small>prezzo da definire</small>
-              </div>
-              <a class="btn btn-primary" href="#catalogo">Presto online</a>
-            </div>
-          </article>
+            <label class="field">
+              <span>Stato</span>
+              <select id="status-filter">
+                <option value="all">Tutti gli stati</option>
+                <option value="available">Disponibile</option>
+                <option value="coming_soon">In preparazione</option>
+                <option value="draft">Bozza</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Ordina</span>
+              <select id="sort-filter">
+                <option value="featured">In evidenza prima</option>
+                <option value="title-asc">Titolo A-Z</option>
+                <option value="price-asc">Prezzo crescente</option>
+                <option value="price-desc">Prezzo decrescente</option>
+              </select>
+            </label>
+          </div>
         </div>
+
+        <div class="catalog-summary" id="catalog-summary"></div>
+        <div class="grid-3" id="catalog-grid"></div>
       </div>
     </section>
 
-    <section class="section" id="prodotto-ai">
+    <section class="section" id="prodotto">
       <div class="container">
         <div class="section-head">
           <div>
-            <h2>Guida pratica all’AI per lavorare meglio</h2>
+            <h2>Scheda prodotto</h2>
             <p>
-              Un e-book introduttivo progettato per aiutarti a usare strumenti AI
-              in modo più utile, più chiaro e più vicino al lavoro reale.
+              La scheda viene aggiornata dinamicamente quando apri un prodotto dal catalogo o dai titoli in evidenza.
             </p>
           </div>
         </div>
 
-        <div class="product-layout">
-          <div class="product-box">
-            <h2>Cosa troverai dentro</h2>
-            <ul class="list-clean">
-              <li>Una spiegazione semplice di cosa può fare davvero l’AI</li>
-              <li>Esempi d’uso pratico nel lavoro quotidiano</li>
-              <li>Consigli per evitare errori comuni</li>
-              <li>Un approccio orientato all’utilità, non all’hype</li>
-            </ul>
-
-            <h2>Per chi è pensato</h2>
-            <p>
-              Per professionisti, autonomi, persone curiose e utenti non tecnici
-              che vogliono capire come integrare meglio strumenti AI nella propria routine.
-            </p>
-
-            <h2>Formato</h2>
-            <p>
-              E-book digitale in formato PDF. Download immediato dopo l’acquisto,
-              quando collegheremo il sistema di pagamento.
-            </p>
-
-            <h2>Nota</h2>
-            <p>
-              Questa pagina è una base strutturale reale. Il checkout verrà collegato successivamente.
-            </p>
-          </div>
-
-          <aside class="product-box">
-            <div class="product-cover">
-              Guida pratica all’AI<br />per lavorare meglio
-            </div>
-
-            <div style="margin-top:20px;">
-              <div class="badge">E-book digitale</div>
-              <div class="meta">
-                <span>PDF</span>
-                <span>Principianti</span>
-                <span>Download</span>
-              </div>
-
-              <div class="price-row" style="margin-top:8px;">
-                <div class="price">
-                  <strong>€ [MISSING]</strong>
-                  <small>prezzo da definire</small>
-                </div>
-              </div>
-
-              <div style="margin-top:20px; display:grid; gap:12px;">
-                <a class="btn btn-primary" href="#">Checkout da collegare</a>
-                <a class="btn btn-secondary" href="#catalogo">Torna al catalogo</a>
-              </div>
-            </div>
-          </aside>
-        </div>
+        <div class="product-layout" id="product-layout"></div>
       </div>
     </section>
 
@@ -387,22 +272,7 @@
           </div>
         </div>
 
-        <div class="grid-3">
-          <article class="faq-item card">
-            <h4>Che tipo di prodotti troverò qui?</h4>
-            <p>E-book digitali pratici, guide operative e risorse pensate per l’apprendimento autonomo.</p>
-          </article>
-
-          <article class="faq-item card">
-            <h4>Come riceverò il prodotto?</h4>
-            <p>Dopo il collegamento del checkout, il prodotto verrà consegnato in formato digitale.</p>
-          </article>
-
-          <article class="faq-item card">
-            <h4>Serve un account per leggere gli e-book?</h4>
-            <p>No, l’obiettivo è mantenere un’esperienza semplice e accessibile.</p>
-          </article>
-        </div>
+        <div class="grid-3" id="faq-grid"></div>
       </div>
     </section>
 
@@ -411,22 +281,11 @@
         <div class="section-head">
           <div>
             <h2>Contatti</h2>
-            <p>Questa sezione è la base minima per dare al progetto un volto più affidabile e completo.</p>
+            <p>Base minima credibile per dare al progetto un volto più affidabile e completo.</p>
           </div>
         </div>
 
-        <div class="page-card text-block">
-          <h2>Scrivici</h2>
-          <p>Email di progetto: <strong>[MISSING_EMAIL]</strong></p>
-
-          <h2>Tempi di risposta</h2>
-          <p>Questa informazione può essere aggiunta quando il progetto entra nella fase operativa reale.</p>
-
-          <h2>Nota</h2>
-          <p>
-            In una fase successiva possiamo aggiungere un modulo contatti semplice oppure un collegamento email diretto più pulito.
-          </p>
-        </div>
+        <div class="page-card text-block" id="contacts-card"></div>
       </div>
     </section>
 
@@ -436,13 +295,222 @@
           <div class="section-head">
             <div>
               <h2>Resta aggiornato sull’evoluzione di Accademia Futuro</h2>
-              <p>Questa sezione può diventare newsletter o raccolta contatti in una fase successiva.</p>
+              <p>Questa sezione è pronta per diventare newsletter o raccolta contatti in una fase successiva.</p>
             </div>
           </div>
 
           <div class="newsletter">
-            <input type="email" placeholder="Inserisci la tua email" />
-            <button class="btn btn-primary" type="button">Non attivo ora</button>
+            <input type="email" placeholder="Inserisci la tua email" aria-label="Email newsletter" />
+            <button class="btn btn-primary" type="button" disabled>Non attivo ora</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section admin-section" id="admin">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2>Vista admin</h2>
+            <p>
+              Gestione frontend-first di prodotti, email e controlli di coerenza. Non è una sicurezza reale:
+              serve come pannello operativo leggero dentro lo stesso sito.
+            </p>
+          </div>
+        </div>
+
+        <div class="admin-shell">
+          <aside class="admin-side card">
+            <div class="admin-login" id="admin-login-box">
+              <h3>Accesso admin</h3>
+              <p>Inserisci il codice admin locale per sbloccare la gestione interna.</p>
+              <form id="admin-login-form" class="stack-form">
+                <label class="field">
+                  <span>Codice admin</span>
+                  <input id="admin-password" type="password" placeholder="Inserisci il codice admin" />
+                </label>
+                <button class="btn btn-primary" type="submit">Sblocca admin</button>
+              </form>
+              <p class="micro-note">
+                Codice iniziale demo: <strong>[MISSING_ADMIN_CODE]</strong>. Sostituiscilo in `main.js` prima di pubblicare.
+              </p>
+            </div>
+
+            <div class="admin-unlocked hidden" id="admin-session-box">
+              <div class="admin-session-head">
+                <div>
+                  <div class="pill pill-success">Admin attivo</div>
+                  <h3>Pannello operativo</h3>
+                </div>
+                <button class="btn btn-secondary btn-small" type="button" id="logout-admin">Esci</button>
+              </div>
+
+              <div class="admin-nav">
+                <button class="tab-btn active" type="button" data-admin-tab="overview">Controlli</button>
+                <button class="tab-btn" type="button" data-admin-tab="products">Prodotti</button>
+                <button class="tab-btn" type="button" data-admin-tab="settings">Impostazioni</button>
+                <button class="tab-btn" type="button" data-admin-tab="backup">Backup</button>
+              </div>
+
+              <div class="micro-note">
+                Le modifiche vengono salvate in <strong>localStorage</strong> nel browser attuale.
+              </div>
+            </div>
+          </aside>
+
+          <div class="admin-main">
+            <section class="card admin-panel active" id="admin-panel-overview">
+              <div class="panel-head">
+                <h3>Controlli di coerenza</h3>
+                <button class="btn btn-secondary btn-small" type="button" id="run-audit">Aggiorna controlli</button>
+              </div>
+              <div class="audit-grid" id="audit-grid"></div>
+              <div class="audit-list" id="audit-list"></div>
+            </section>
+
+            <section class="card admin-panel" id="admin-panel-products">
+              <div class="panel-head">
+                <h3>Gestione ebook</h3>
+                <button class="btn btn-secondary btn-small" type="button" id="reset-product-form">Nuovo prodotto</button>
+              </div>
+
+              <form id="product-form" class="product-form">
+                <input type="hidden" id="product-id" />
+
+                <div class="form-grid">
+                  <label class="field">
+                    <span>Titolo</span>
+                    <input id="product-title" type="text" required />
+                  </label>
+
+                  <label class="field">
+                    <span>Slug</span>
+                    <input id="product-slug" type="text" placeholder="guida-pratica-ai" />
+                  </label>
+
+                  <label class="field">
+                    <span>Prezzo</span>
+                    <input id="product-price" type="number" min="0" step="0.01" />
+                  </label>
+
+                  <label class="field">
+                    <span>Categoria</span>
+                    <input id="product-category" type="text" placeholder="AI e strumenti digitali" />
+                  </label>
+
+                  <label class="field">
+                    <span>Badge / stato etichetta</span>
+                    <input id="product-badge" type="text" placeholder="In evidenza" />
+                  </label>
+
+                  <label class="field">
+                    <span>Stato prodotto</span>
+                    <select id="product-status">
+                      <option value="available">Disponibile</option>
+                      <option value="coming_soon">In preparazione</option>
+                      <option value="draft">Bozza</option>
+                    </select>
+                  </label>
+
+                  <label class="field">
+                    <span>Formato</span>
+                    <input id="product-format" type="text" placeholder="PDF" />
+                  </label>
+
+                  <label class="field">
+                    <span>Pubblico</span>
+                    <input id="product-audience" type="text" placeholder="Principianti" />
+                  </label>
+
+                  <label class="field">
+                    <span>Checkout URL</span>
+                    <input id="product-checkout-url" type="url" placeholder="https://[MISSING_CHECKOUT_URL]" />
+                  </label>
+
+                  <label class="field">
+                    <span>Download URL diretto</span>
+                    <input id="product-download-url" type="url" placeholder="https://[MISSING_DOWNLOAD_URL]" />
+                  </label>
+
+                  <label class="field field-checkbox">
+                    <input id="product-featured" type="checkbox" />
+                    <span>Mostra in evidenza</span>
+                  </label>
+                </div>
+
+                <label class="field">
+                  <span>Descrizione breve</span>
+                  <textarea id="product-short-description" rows="3"></textarea>
+                </label>
+
+                <label class="field">
+                  <span>Descrizione completa</span>
+                  <textarea id="product-description" rows="5"></textarea>
+                </label>
+
+                <label class="field">
+                  <span>Cosa troverai dentro (una riga per punto)</span>
+                  <textarea id="product-features" rows="5"></textarea>
+                </label>
+
+                <div class="form-actions">
+                  <button class="btn btn-primary" type="submit">Salva prodotto</button>
+                  <button class="btn btn-secondary" type="button" id="delete-product">Rimuovi prodotto selezionato</button>
+                </div>
+              </form>
+
+              <div class="product-admin-list" id="product-admin-list"></div>
+            </section>
+
+            <section class="card admin-panel" id="admin-panel-settings">
+              <div class="panel-head">
+                <h3>Impostazioni principali</h3>
+              </div>
+
+              <form id="settings-form" class="stack-form">
+                <label class="field">
+                  <span>Email di contatto</span>
+                  <input id="contact-email" type="email" />
+                </label>
+
+                <label class="field">
+                  <span>Email notifiche ordini</span>
+                  <input id="notification-email" type="email" />
+                </label>
+
+                <label class="field">
+                  <span>Nota contatti / tempi di risposta</span>
+                  <textarea id="contact-note" rows="4"></textarea>
+                </label>
+
+                <button class="btn btn-primary" type="submit">Salva impostazioni</button>
+              </form>
+            </section>
+
+            <section class="card admin-panel" id="admin-panel-backup">
+              <div class="panel-head">
+                <h3>Backup locale</h3>
+              </div>
+
+              <div class="backup-grid">
+                <div>
+                  <h4>Esporta stato</h4>
+                  <p>Copiati il JSON qui sotto per conservare una copia locale dei dati.</p>
+                  <textarea id="backup-output" rows="14" readonly></textarea>
+                  <button class="btn btn-secondary" type="button" id="refresh-backup">Rigenera export</button>
+                </div>
+
+                <div>
+                  <h4>Importa stato</h4>
+                  <p>Incolla un JSON esportato in precedenza per ripristinare dati e impostazioni.</p>
+                  <textarea id="backup-input" rows="14" placeholder='{"settings":{},"products":[],"faq":[]}'></textarea>
+                  <div class="form-actions">
+                    <button class="btn btn-primary" type="button" id="import-backup">Importa JSON</button>
+                    <button class="btn btn-secondary" type="button" id="reset-demo-data">Ripristina dati demo</button>
+                  </div>
+                </div>
+              </div>
+            </section>
           </div>
         </div>
       </div>
@@ -466,31 +534,33 @@
         <div>
           <h4>Esplora</h4>
           <a href="#catalogo">Catalogo</a>
-          <a href="#chi-siamo">Chi siamo</a>
+          <a href="#prodotto">Scheda prodotto</a>
           <a href="#faq">FAQ</a>
           <a href="#contatti">Contatti</a>
         </div>
 
         <div>
-          <h4>Prodotti</h4>
-          <a href="#prodotto-ai">Guida pratica all’AI</a>
-          <a href="#catalogo">Metodo personale</a>
-          <a href="#catalogo">Comunicare meglio online</a>
+          <h4>Operatività</h4>
+          <a href="#admin" data-open-admin-link>Vista admin</a>
+          <a href="#catalogo">Catalogo dinamico</a>
+          <a href="#newsletter">Newsletter futura</a>
         </div>
 
         <div>
           <h4>Note</h4>
-          <a href="#">Privacy</a>
-          <a href="#">Termini</a>
-          <a href="#">Rimborsi</a>
+          <a href="#" aria-disabled="true">Privacy [MISSING]</a>
+          <a href="#" aria-disabled="true">Termini [MISSING]</a>
+          <a href="#" aria-disabled="true">Rimborsi [MISSING]</a>
         </div>
       </div>
 
       <div class="footer-bottom">
-        © Accademia Futuro — Base statica del progetto in costruzione.
+        © Accademia Futuro — Base single-page dinamica del progetto.
       </div>
     </div>
   </footer>
+
+  <div class="toast" id="toast" aria-live="polite" aria-atomic="true"></div>
 
   <script src="assets/js/main.js"></script>
 </body>
