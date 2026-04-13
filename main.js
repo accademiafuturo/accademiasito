@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const STORAGE_KEY = "accademia-futuro-state-v2";
+  const STORAGE_KEY = "accademia-futuro-state-v3";
   const ADMIN_SESSION_KEY = "accademia-futuro-admin-session";
   const ADMIN_CODE = "Luca10082004!";
   const ADMIN_HASH = "#admin-access";
@@ -203,22 +203,22 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function bindEvents() {
-    dom.searchInput.addEventListener("input", (event) => {
+    dom.searchInput?.addEventListener("input", (event) => {
       uiState.search = event.target.value.trim().toLowerCase();
       renderCatalog();
     });
 
-    dom.categoryFilter.addEventListener("change", (event) => {
+    dom.categoryFilter?.addEventListener("change", (event) => {
       uiState.category = event.target.value;
       renderCatalog();
     });
 
-    dom.statusFilter.addEventListener("change", (event) => {
+    dom.statusFilter?.addEventListener("change", (event) => {
       uiState.status = event.target.value;
       renderCatalog();
     });
 
-    dom.sortFilter.addEventListener("change", (event) => {
+    dom.sortFilter?.addEventListener("change", (event) => {
       uiState.sort = event.target.value;
       renderCatalog();
     });
@@ -228,7 +228,7 @@ document.addEventListener("DOMContentLoaded", () => {
       dom.navToggle.setAttribute("aria-expanded", String(isOpen));
     });
 
-    dom.adminLoginForm.addEventListener("submit", (event) => {
+    dom.adminLoginForm?.addEventListener("submit", (event) => {
       event.preventDefault();
       const code = dom.adminPassword.value.trim();
 
@@ -251,7 +251,7 @@ document.addEventListener("DOMContentLoaded", () => {
       toast("Vista admin sbloccata.");
     });
 
-    dom.logoutAdmin.addEventListener("click", () => {
+    dom.logoutAdmin?.addEventListener("click", () => {
       localStorage.removeItem(ADMIN_SESSION_KEY);
       uiState.adminVisible = false;
       history.replaceState(null, "", "#home");
@@ -269,17 +269,17 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-    dom.runAudit.addEventListener("click", () => {
+    dom.runAudit?.addEventListener("click", () => {
       renderAudit();
       toast("Controlli aggiornati.");
     });
 
-    dom.productForm.addEventListener("submit", (event) => {
+    dom.productForm?.addEventListener("submit", (event) => {
       event.preventDefault();
       upsertProductFromForm();
     });
 
-    dom.deleteProduct.addEventListener("click", () => {
+    dom.deleteProduct?.addEventListener("click", () => {
       const id = dom.productId.value.trim();
 
       if (!id) {
@@ -306,12 +306,12 @@ document.addEventListener("DOMContentLoaded", () => {
       toast("Prodotto rimosso.");
     });
 
-    dom.resetProductForm.addEventListener("click", () => {
+    dom.resetProductForm?.addEventListener("click", () => {
       clearProductForm();
       toast("Form pronto per un nuovo prodotto.");
     });
 
-    dom.settingsForm.addEventListener("submit", (event) => {
+    dom.settingsForm?.addEventListener("submit", (event) => {
       event.preventDefault();
 
       state.settings.contactEmail = dom.contactEmail.value.trim() || "ACCADEMIAFUTURO@GMAIL.COM";
@@ -325,12 +325,12 @@ document.addEventListener("DOMContentLoaded", () => {
       toast("Impostazioni salvate.");
     });
 
-    dom.refreshBackup.addEventListener("click", () => {
+    dom.refreshBackup?.addEventListener("click", () => {
       refreshBackup();
       toast("Export JSON aggiornato.");
     });
 
-    dom.importBackup.addEventListener("click", () => {
+    dom.importBackup?.addEventListener("click", () => {
       try {
         const parsed = JSON.parse(dom.backupInput.value);
 
@@ -358,7 +358,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    dom.resetDemoData.addEventListener("click", () => {
+    dom.resetDemoData?.addEventListener("click", () => {
       const fresh = deepClone(defaultState);
       state.settings = fresh.settings;
       state.products = fresh.products;
@@ -413,7 +413,11 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateAdminVisibility() {
     const isLogged = localStorage.getItem(ADMIN_SESSION_KEY) === "active";
     const shouldShow = uiState.adminVisible || isLogged;
+
+    if (!dom.adminSection) return;
+
     dom.adminSection.classList.toggle("hidden", !shouldShow);
+    dom.adminSection.style.display = shouldShow ? "block" : "none";
   }
 
   function syncAdminSession() {
@@ -1010,6 +1014,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function toast(message) {
+    if (!dom.toast) return;
     dom.toast.textContent = message;
     dom.toast.classList.add("show");
     clearTimeout(dom.toast._timer);
