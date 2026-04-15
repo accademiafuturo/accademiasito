@@ -15,7 +15,7 @@ Questo progetto è di proprietà esclusiva di **Leva Luca Gianpietro**.
 ---
 
 ## Descrizione
-Piattaforma dedicata alla formazione e all'orientamento per le professioni del futuro. Base per sito di e-commerce
+Piattaforma dedicata alla formazione e all'orientamento per le professioni del futuro. Base per sito di e-commerce completo
 
 ## Tecnologie utilizzate
 - HTML5 / CSS3
